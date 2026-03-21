@@ -43,6 +43,22 @@ public class Graph {
         }
     }
 
+    void dfs(int start) {
+        boolean[] visited = new boolean[vertices];
+        dfsVisit(start, visited);
+    }
+
+    void dfsVisit(int node, boolean[] visited) {
+        visited[node] = true;
+        System.out.print(node + " ");
+
+        for (int neighbor : adjList[node]) {
+            if (!visited[neighbor]) {
+                dfsVisit(neighbor, visited);
+            }
+        }
+    }
+
     public static void main(String[] args) {
 
         Graph g = new Graph(6);
@@ -56,5 +72,11 @@ public class Graph {
         System.out.println("BFS traversal starting from node 0:");
 
         g.bfs(0);
+
+        System.out.println();
+
+        System.out.println("DFS traversal starting from node 0:");
+
+        g.dfs(0);
     }
 }
