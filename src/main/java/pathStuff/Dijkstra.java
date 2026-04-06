@@ -133,6 +133,16 @@ public class Dijkstra {
         return end - start;
     }
 
+    static long avgTestDijkstra(List<List<Edge>> graph, int runs) {
+        long total = 0;
+
+        for (int i = 0; i < runs; i++) {
+            total += testDijkstra(graph);
+        }
+
+        return total / runs;
+    }
+
     static long testFloyd(List<List<Edge>> graph) {
         long start = System.nanoTime();
 
@@ -142,8 +152,18 @@ public class Dijkstra {
         return end - start;
     }
 
+    static long avgTestFloyd(List<List<Edge>> graph, int runs) {
+        long total = 0;
+
+        for (int i = 0; i < runs; i++) {
+            total += testFloyd(graph);
+        }
+
+        return total / runs;
+    }
+
     public static void main(String[] args) {
-        int[] sizes = {100, 200, 300};
+        int[] sizes = {50, 100, 200};
 
         for (int n : sizes) {
             System.out.println("n = " + n);
@@ -151,13 +171,13 @@ public class Dijkstra {
             List<List<Edge>> sparse = createSparseGraph(n);
             List<List<Edge>> dense = createDenseGraph(n);
 
-            for (int i = 0; i < 3; i++) {
-                dijkstra(sparse, 0);
-                floydWarshall(sparse);
+            for (int i = 0; i < 5; i++) {
+                testDijkstra(sparse);
+                testFloyd(sparse);
             }
 
-            long dSparse = testDijkstra(sparse);
-            long fSparse = testFloyd(sparse);
+            long dSparse = avgTestDijkstra(sparse, 5);
+            long fSparse = avgTestFloyd(sparse, 5);
 
             long dDense = testDijkstra(dense);
             long fDense = testFloyd(dense);
