@@ -108,7 +108,7 @@ public class Graph {
 
         display(g);
 
-        Graph g2 = new Graph(1000);
+        Graph g2 = new Graph(1000); //sparse directed graph, tree
 
         for (int i = 0; i < 500; i++) {
             int left  = 2 * i + 1;
@@ -122,7 +122,7 @@ public class Graph {
 
         Random rand = new Random();
 
-        Graph g3 = new Graph(1000);
+        Graph g3 = new Graph(1000); //dense graph
 
         for (int i = 0; i < 1000; i++) {
             for (int j = 0; j < 1000; j++) {
