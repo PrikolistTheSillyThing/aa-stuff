@@ -1,5 +1,15 @@
 package pathStuff;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import javax.swing.*;
+import java.text.DecimalFormat;
+
 import java.util.*;
 
 class Edge {
@@ -163,14 +173,22 @@ public class Dijkstra {
     }
 
     public static void main(String[] args) {
+
         int[] sizes = {50, 100, 200};
 
-        for (int n : sizes) {
+        double[] dSparseArr = new double[sizes.length];
+        double[] fSparseArr = new double[sizes.length];
+        double[] dDenseArr = new double[sizes.length];
+        double[] fDenseArr = new double[sizes.length];
+
+        for (int s = 0; s < sizes.length; s++) {
+            int n = sizes[s];
             System.out.println("n = " + n);
 
             List<List<Edge>> sparse = createSparseGraph(n);
             List<List<Edge>> dense = createDenseGraph(n);
 
+            // warm-up
             for (int i = 0; i < 5; i++) {
                 testDijkstra(sparse);
                 testFloyd(sparse);
@@ -179,9 +197,8 @@ public class Dijkstra {
             long dSparse = avgTestDijkstra(sparse, 5);
             long fSparse = avgTestFloyd(sparse, 5);
 
-            long dDense = testDijkstra(dense);
-            long fDense = testFloyd(dense);
-
+            long dDense = avgTestDijkstra(dense, 5);
+            long fDense = avgTestFloyd(dense, 5);
 
             System.out.println("Sparse - Dijkstra: " + dSparse);
             System.out.println("Sparse - Floyd: " + fSparse);
@@ -189,6 +206,52 @@ public class Dijkstra {
             System.out.println("Dense  - Floyd: " + fDense);
 
             System.out.println();
+
+            // convert to seconds
+            dSparseArr[s] = dSparse / 1_000_000_000.0;
+            fSparseArr[s] = fSparse / 1_000_000_000.0;
+            dDenseArr[s] = dDense / 1_000_000_000.0;
+            fDenseArr[s] = fDense / 1_000_000_000.0;
+        }
+
+        // ---- CREATE SERIES ----
+        XYSeries dSparseSeries = new XYSeries("Sparse - Dijkstra");
+        XYSeries fSparseSeries = new XYSeries("Sparse - Floyd");
+        XYSeries dDenseSeries = new XYSeries("Dense - Dijkstra");
+        XYSeries fDenseSeries = new XYSeries("Dense - Floyd");
+
+        for (int i = 0; i < sizes.length; i++) {
+            dSparseSeries.add(sizes[i], dSparseArr[i]);
+            fSparseSeries.add(sizes[i], fSparseArr[i]);
+            dDenseSeries.add(sizes[i], dDenseArr[i]);
+            fDenseSeries.add(sizes[i], fDenseArr[i]);
+        }
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(dSparseSeries);
+        dataset.addSeries(fSparseSeries);
+        dataset.addSeries(dDenseSeries);
+        dataset.addSeries(fDenseSeries);
+
+        // ---- CREATE CHART ----
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Dijkstra vs Floyd-Warshall",
+                "Number of Vertices (n)",
+                "Time (seconds)",
+                dataset
+        );
+
+        NumberAxis yAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+        yAxis.setNumberFormatOverride(new DecimalFormat("0.000000"));
+
+        // ---- DISPLAY ----
+        JFrame frame = new JFrame("Algorithm Comparison");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new ChartPanel(chart));
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
         }
     }
-}
+
