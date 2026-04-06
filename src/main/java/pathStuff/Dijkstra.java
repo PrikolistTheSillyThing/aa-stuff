@@ -43,29 +43,23 @@ public class Dijkstra {
             }
         }
 
-        for (int i = 0; i < n; i++) {
-            System.out.println("Distance to " + i + " = " + dist[i]);
-        }
     }
 
     static void floydWarshall(List<List<Edge>> graph) {
         int n = graph.size();
         int[][] dist = new int[n][n];
 
-        // Step 1: initialize matrix
         for (int i = 0; i < n; i++) {
             Arrays.fill(dist[i], Integer.MAX_VALUE);
             dist[i][i] = 0;
         }
 
-        // Step 2: fill from adjacency list
         for (int i = 0; i < n; i++) {
             for (Edge e : graph.get(i)) {
                 dist[i][e.to] = e.weight;
             }
         }
 
-        // Step 3: main algorithm
         for (int k = 0; k < n; k++) {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
@@ -80,16 +74,6 @@ public class Dijkstra {
             }
         }
 
-        // Step 4: print result
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (dist[i][j] == Integer.MAX_VALUE)
-                    System.out.print("INF ");
-                else
-                    System.out.print(dist[i][j] + " ");
-            }
-            System.out.println();
-        }
     }
 
     static List<List<Edge>> createSparseGraph(int n) {
@@ -138,17 +122,53 @@ public class Dijkstra {
         return graph;
     }
 
-    public static void main(String[] args) {
-        List<List<Edge>> graph;
-        graph = createSparseGraph(10);
-        List<List<Edge>> graph2;
-        graph2 = createDenseGraph(10);
-        dijkstra(graph, 0);
-        System.out.println();
-        dijkstra(graph2, 0);
-        System.out.println();
+    static long testDijkstra(List<List<Edge>> graph) {
+        long start = System.nanoTime();
+
+        for (int i = 0; i < graph.size(); i++) {
+            dijkstra(graph, i);
+        }
+
+        long end = System.nanoTime();
+        return end - start;
+    }
+
+    static long testFloyd(List<List<Edge>> graph) {
+        long start = System.nanoTime();
+
         floydWarshall(graph);
-        System.out.println();
-        floydWarshall(graph2);
+
+        long end = System.nanoTime();
+        return end - start;
+    }
+
+    public static void main(String[] args) {
+        int[] sizes = {100, 200, 300};
+
+        for (int n : sizes) {
+            System.out.println("n = " + n);
+
+            List<List<Edge>> sparse = createSparseGraph(n);
+            List<List<Edge>> dense = createDenseGraph(n);
+
+            for (int i = 0; i < 3; i++) {
+                dijkstra(sparse, 0);
+                floydWarshall(sparse);
+            }
+
+            long dSparse = testDijkstra(sparse);
+            long fSparse = testFloyd(sparse);
+
+            long dDense = testDijkstra(dense);
+            long fDense = testFloyd(dense);
+
+
+            System.out.println("Sparse - Dijkstra: " + dSparse);
+            System.out.println("Sparse - Floyd: " + fSparse);
+            System.out.println("Dense  - Dijkstra: " + dDense);
+            System.out.println("Dense  - Floyd: " + fDense);
+
+            System.out.println();
+        }
     }
 }
